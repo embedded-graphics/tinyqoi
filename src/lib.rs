@@ -6,6 +6,10 @@
 
 use embedded_graphics::{pixelcolor::Rgb888, prelude::*};
 
+const MAGIC: &[u8] = b"qoif";
+const HEADER_LENGTH: usize = 14;
+const STREAM_END: &[u8] = &[0, 0, 0, 0, 0, 0, 0, 1];
+
 /// QOI image.
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Qoi<'a> {
@@ -16,21 +20,28 @@ pub struct Qoi<'a> {
 impl<'a> Qoi<'a> {
     /// Creates a new OOI image.
     pub fn new(data: &'a [u8]) -> Result<Self, Error> {
-        if data.len() < 14 {
+        if data.len() < (HEADER_LENGTH + STREAM_END.len()) {
             return Err(Error::TruncatedFile);
         }
 
-        if &data[0..4] != b"qoif" {
+        let (header, data) = data.split_at(HEADER_LENGTH);
+        let (magic, header) = header.split_at(MAGIC.len());
+        let (data, end) = data.split_at(data.len() - STREAM_END.len());
+
+        if magic != MAGIC {
             return Err(Error::InvalidMagic);
         }
+        if end != STREAM_END {
+            return Err(Error::TruncatedFile);
+        }
 
-        let width = u32::from_be_bytes(data[4..8].try_into().unwrap());
-        let height = u32::from_be_bytes(data[8..12].try_into().unwrap());
-        let _channels = data[12];
-        let _colorspace = data[13];
+        let width = u32::from_be_bytes(header[0..4].try_into().unwrap());
+        let height = u32::from_be_bytes(header[4..8].try_into().unwrap());
+        let _channels = header[8];
+        let _colorspace = header[9];
 
         Ok(Self {
-            data: &data[14..],
+            data,
             size: Size::new(width, height),
         })
     }
@@ -200,6 +211,8 @@ pub enum Error {
 
 #[cfg(test)]
 mod tests {
+    use embedded_graphics::{image::Image, mock_display::MockDisplay};
+
     use super::*;
 
     #[test]
@@ -209,8 +222,31 @@ mod tests {
     }
 
     #[test]
-    fn truncated_file() {
+    fn truncated_header() {
         let data = b"too short";
         assert_eq!(Qoi::new(data), Err(Error::TruncatedFile));
+    }
+
+    #[test]
+    fn truncated_file() {
+        let data = include_bytes!("../tests/colors.qoi");
+        let (_, data) = data.split_last().unwrap();
+        assert_eq!(Qoi::new(data), Err(Error::TruncatedFile));
+    }
+
+    #[test]
+    fn image() {
+        let data = include_bytes!("../tests/colors.qoi");
+        let qoi = Qoi::new(data).unwrap();
+        assert_eq!(qoi.size(), Size::new(3, 3));
+
+        let mut display = MockDisplay::<Rgb888>::new();
+        Image::new(&qoi, Point::zero()).draw(&mut display).unwrap();
+
+        display.assert_pattern(&[
+            "RGB", //
+            "WWW", //
+            "KKK", //
+        ]);
     }
 }
