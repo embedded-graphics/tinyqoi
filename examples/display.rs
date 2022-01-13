@@ -13,7 +13,7 @@ fn main() {
     let args = Args::parse();
 
     let data = fs::read(&args.qoi_file).unwrap();
-    let qoi = Qoi::new(&data);
+    let qoi = Qoi::new(&data).unwrap();
 
     let mut display = SimulatorDisplay::<Rgb888>::new(qoi.size());
     Image::new(&qoi, Point::zero()).draw(&mut display).unwrap();

@@ -2,15 +2,12 @@
 
 #![no_std]
 #![deny(missing_docs)]
+#![deny(missing_debug_implementations)]
 
 use embedded_graphics::{pixelcolor::Rgb888, prelude::*};
-use nom::{
-    bytes::complete::tag,
-    number::complete::{be_u32, be_u8},
-    IResult,
-};
 
 /// QOI image.
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Qoi<'a> {
     data: &'a [u8],
     size: Size,
@@ -18,25 +15,30 @@ pub struct Qoi<'a> {
 
 impl<'a> Qoi<'a> {
     /// Creates a new OOI image.
-    pub fn new(data: &'a [u8]) -> Self {
-        let (data, size) = parse_header(data).unwrap();
-        Self { data, size }
+    pub fn new(data: &'a [u8]) -> Result<Self, Error> {
+        if data.len() < 14 {
+            return Err(Error::TruncatedFile);
+        }
+
+        if &data[0..4] != b"qoif" {
+            return Err(Error::InvalidMagic);
+        }
+
+        let width = u32::from_be_bytes(data[4..8].try_into().unwrap());
+        let height = u32::from_be_bytes(data[8..12].try_into().unwrap());
+        let _channels = data[12];
+        let _colorspace = data[13];
+
+        Ok(Self {
+            data: &data[14..],
+            size: Size::new(width, height),
+        })
     }
 
     /// Returns an iterator over this pixels in this image.
     pub fn pixels(&'a self) -> PixelsIter<'a> {
         PixelsIter::new(self)
     }
-}
-
-fn parse_header(input: &[u8]) -> IResult<&[u8], Size> {
-    let (input, _) = tag("qoif")(input)?;
-    let (input, width) = be_u32(input)?;
-    let (input, height) = be_u32(input)?;
-    let (input, _channels) = be_u8(input)?;
-    let (input, _colorspace) = be_u8(input)?;
-
-    Ok((input, Size::new(width, height)))
 }
 
 impl ImageDrawable for Qoi<'_> {
@@ -78,6 +80,7 @@ fn hash_pixel(pixel: Rgb888, alpha: u8) -> u8 {
 }
 
 /// Iterator over the pixels of a QOI image.
+#[derive(Debug)]
 pub struct PixelsIter<'a> {
     previous_color: Rgb888,
     previous_alpha: u8,
@@ -183,5 +186,31 @@ impl Iterator for PixelsIter<'_> {
         self.previous_colors[index] = self.previous_color;
         self.previous_alphas[index] = self.previous_alpha;
         Some(self.previous_color)
+    }
+}
+
+/// Error.
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub enum Error {
+    /// Invalid magic value.
+    InvalidMagic,
+    /// File is too short.
+    TruncatedFile,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn invalid_magic() {
+        let data = b"not a valid qoi file!!!!!!!!";
+        assert_eq!(Qoi::new(data), Err(Error::InvalidMagic));
+    }
+
+    #[test]
+    fn truncated_file() {
+        let data = b"too short";
+        assert_eq!(Qoi::new(data), Err(Error::TruncatedFile));
     }
 }
