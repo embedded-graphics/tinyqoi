@@ -1,3 +1,8 @@
+//! QOI image decoder for embedded applications.
+
+#![no_std]
+#![deny(missing_docs)]
+
 use embedded_graphics::{pixelcolor::Rgb888, prelude::*};
 use nom::{
     bytes::complete::tag,
@@ -5,17 +10,20 @@ use nom::{
     IResult,
 };
 
+/// QOI image.
 pub struct Qoi<'a> {
     data: &'a [u8],
     size: Size,
 }
 
 impl<'a> Qoi<'a> {
+    /// Creates a new OOI image.
     pub fn new(data: &'a [u8]) -> Self {
         let (data, size) = parse_header(data).unwrap();
         Self { data, size }
     }
 
+    /// Returns an iterator over this pixels in this image.
     pub fn pixels(&'a self) -> PixelsIter<'a> {
         PixelsIter::new(self)
     }
@@ -43,13 +51,13 @@ impl ImageDrawable for Qoi<'_> {
 
     fn draw_sub_image<D>(
         &self,
-        _target: &mut D,
-        _area: &embedded_graphics::primitives::Rectangle,
+        target: &mut D,
+        area: &embedded_graphics::primitives::Rectangle,
     ) -> Result<(), D::Error>
     where
         D: DrawTarget<Color = Self::Color>,
     {
-        todo!()
+        self.draw(&mut target.translated(-area.top_left).clipped(area))
     }
 }
 
@@ -69,6 +77,7 @@ fn hash_pixel(pixel: Rgb888, alpha: u8) -> u8 {
         % 64
 }
 
+/// Iterator over the pixels of a QOI image.
 pub struct PixelsIter<'a> {
     previous_color: Rgb888,
     previous_alpha: u8,
@@ -79,7 +88,7 @@ pub struct PixelsIter<'a> {
 }
 
 impl<'a> PixelsIter<'a> {
-    pub fn new(qoi: &'a Qoi<'a>) -> Self {
+    fn new(qoi: &'a Qoi<'a>) -> Self {
         Self {
             previous_color: Rgb888::BLACK,
             previous_alpha: 255,

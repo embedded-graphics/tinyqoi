@@ -1,8 +1,8 @@
 use clap::Parser;
-use embedded_graphics::{pixelcolor::Rgb888, prelude::*, image::Image};
-use embedded_graphics_simulator::{SimulatorDisplay, OutputSettings, Window};
+use embedded_graphics::{image::Image, pixelcolor::Rgb888, prelude::*};
+use embedded_graphics_simulator::{OutputSettings, SimulatorDisplay, Window};
+use std::{fs, path::PathBuf};
 use tinyqoi::Qoi;
-use std::{path::PathBuf, fs};
 
 #[derive(Parser)]
 struct Args {
@@ -17,7 +17,7 @@ fn main() {
 
     let mut display = SimulatorDisplay::<Rgb888>::new(qoi.size());
     Image::new(&qoi, Point::zero()).draw(&mut display).unwrap();
-    
+
     let mut window = Window::new("qoi viewer", &OutputSettings::default());
     window.show_static(&display);
 }

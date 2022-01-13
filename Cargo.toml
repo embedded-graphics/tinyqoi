@@ -1,11 +1,17 @@
 [package]
 name = "tinyqoi"
+description = "QOI image decoder for embedded applications"
 version = "0.1.0"
+authors = ["Ralf Fuest <mail@rfuest.de>"]
 edition = "2021"
+repository = "https://github.com/embedded-graphics/tinyqoi"
+categories = ["embedded", "no-std", "multimedia::images"]
+keywords = ["graphics", "embedded-graphics", "qoi", "bitmap", "image"]
+license = "MIT OR Apache-2.0"
 
 [dependencies]
 embedded-graphics = "0.7.1"
-nom = "7.1.0"
+nom = { version = "7.1.0", default-features = false }
 
 [dev-dependencies]
 clap = { version = "3.0.7", features = ["derive"] }
