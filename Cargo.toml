@@ -11,7 +11,6 @@ license = "MIT OR Apache-2.0"
 
 [dependencies]
 embedded-graphics = "0.7.1"
-nom = { version = "7.1.0", default-features = false }
 
 [dev-dependencies]
 clap = { version = "3.0.7", features = ["derive"] }
