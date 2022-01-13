@@ -1,0 +1,12 @@
+[package]
+name = "tinyqoi"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+embedded-graphics = "0.7.1"
+nom = "7.1.0"
+
+[dev-dependencies]
+clap = { version = "3.0.7", features = ["derive"] }
+embedded-graphics-simulator = "0.3.0"
