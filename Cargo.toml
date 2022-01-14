@@ -8,6 +8,7 @@ repository = "https://github.com/embedded-graphics/tinyqoi"
 categories = ["embedded", "no-std", "multimedia::images"]
 keywords = ["graphics", "embedded-graphics", "qoi", "bitmap", "image"]
 license = "MIT OR Apache-2.0"
+include = [ "LICENSE-*", "/src/" ]
 
 [dependencies]
 embedded-graphics = "0.7.1"
