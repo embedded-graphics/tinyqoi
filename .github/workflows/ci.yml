@@ -47,6 +47,9 @@ jobs:
       - name: Run tests
         run: |
           just test-images
+      - name: Check README
+        run: |
+          just check-readme
 
   check-formatting:
     name: Check formatting
