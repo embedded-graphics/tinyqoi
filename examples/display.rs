@@ -1,3 +1,7 @@
+//! This example displays QOI images using the embedded-graphics simulator.
+//!
+//! Usage: cargo run --example display QOI_IMAGE
+
 use clap::Parser;
 use embedded_graphics::{image::Image, pixelcolor::Rgb888, prelude::*};
 use embedded_graphics_simulator::{OutputSettings, SimulatorDisplay, Window};

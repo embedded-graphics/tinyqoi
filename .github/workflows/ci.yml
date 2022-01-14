@@ -38,6 +38,10 @@ jobs:
         with:
           crate: just
           version: latest
+      - uses: actions-rs/install@v0.1
+        with:
+          crate: cargo-readme
+          version: latest
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
@@ -47,6 +51,9 @@ jobs:
       - name: Run tests
         run: |
           just test-images
+      - name: Check README
+        run: |
+          just check-readme
 
   check-formatting:
     name: Check formatting

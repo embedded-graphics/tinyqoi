@@ -1,4 +1,24 @@
 //! QOI image decoder for embedded applications.
+//!
+//! `tinyqoi` is a QOI image decoder mainly targeted at use with [`embedded_graphics`].
+//!
+//! # Examples
+//!
+//! A [`Qoi`] image can be wrapped in an embedded-graphics [`Image`] to display
+//! it on any [`DrawTarget`] which uses [`Rgb888`] colors:
+//!
+//! ```rust
+//! use tinyqoi::Qoi;
+//! use embedded_graphics::{prelude::*, image::Image};
+//!
+//! # let mut display = embedded_graphics::mock_display::MockDisplay::new();
+//! // Parse QOI image.
+//! let data = include_bytes!("../tests/colors.qoi");
+//! let qoi = Qoi::new(data).unwrap();
+//!
+//! // Draw image to display.
+//! Image::new(&qoi, Point::zero()).draw(&mut display).unwrap();
+//! ```
 
 #![no_std]
 #![deny(missing_docs)]
