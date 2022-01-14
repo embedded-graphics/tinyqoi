@@ -18,10 +18,10 @@ it on any `DrawTarget` which uses `Rgb888` colors:
 
 ```rust
 use tinyqoi::Qoi;
-use embedded_graphics::{prelude, image::Image};
+use embedded_graphics::{prelude::*, image::Image};
 
 // Parse QOI image.
-let data = include_bytes!("tests/colors.qoi");
+let data = include_bytes!("../tests/colors.qoi");
 let qoi = Qoi::new(data).unwrap();
 
 // Draw image to display.
