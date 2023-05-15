@@ -2,10 +2,13 @@
 //!
 //! `tinyqoi` is a QOI image decoder mainly targeted at use with [`embedded_graphics`].
 //!
+//! Visit <https://qoiformat.org> for additional information about the QOI format.
+//!
 //! # Examples
 //!
-//! A [`Qoi`] image can be wrapped in an embedded-graphics [`Image`] to display
-//! it on any [`DrawTarget`] which uses [`Rgb888`] colors:
+//! A [`Qoi`] image can be wrapped in an embedded-graphics
+//! [`Image`](embedded_graphics::image::Image) to display it on any [`DrawTarget`] which uses
+//! [`Rgb888`] colors:
 //!
 //! ```rust
 //! use tinyqoi::Qoi;
